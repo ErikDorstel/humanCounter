@@ -1,6 +1,13 @@
 # humanCounter
 ESP32 based human counter for the fire department
 #### Features
+* uses two RC522
+* uses one LED traffic light
+* uses two light barriers
+* implements a WiFi AP and WiFi Client
+* sends updates to a server part on tcp port 4242
+* implements a tcp server on port 4242
+* implements a telnet server on port 23
 #### RC522 A
 * GPIO 19 MISO
 * GPIO 23 MOSI
@@ -23,5 +30,3 @@ ESP32 based human counter for the fire department
 #### Light barrier
 * GPIO 36 A
 * GPIO 39 B
-#### Schematic
-![IMAGE ALT TEXT HERE](documentation/)
