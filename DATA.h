@@ -31,6 +31,7 @@ bool checkAdmin(uint64_t UID) {
   else { return false; } }
 
 void newTag(uint64_t UID) {
+  if (currentTags>=340) { if (debug) { Serial.println("Too mmany tags."); } return; }
   if (tagExist(UID)==-1) {
     data.begin("dataStore",false);
     dataStore[currentTags]=UID;
