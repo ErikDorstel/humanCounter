@@ -10,7 +10,7 @@ void doCommand(String command) {
     telnetClient.print("Tags: "); telnetClient.print(currentTags); telnetClient.print("\r\n"); data.end(); } else
   if (buffer.indexOf("reboot")>=0) { telnetClient.stop(); ESP.restart(); } else
   if (buffer.indexOf("runtime")>=0) { telnetClient.print((float)millis()/1000.0/3600.0/24.0,2); telnetClient.print(" days\r\n"); } else
-  if (buffer.indexOf("clear")>=0) { setData(0,"00000000"); telnetClient.print("done\r\n"); } else
+  if (buffer.indexOf("clear")>=0) { setData(0,0); telnetClient.print("done\r\n"); } else
   if (buffer.indexOf("greenOn")>=0) { greenOn(); telnetClient.print("done\r\n"); } else
   if (buffer.indexOf("alarmOn")>=0) { alarmOn(); telnetClient.print("done\r\n"); } else
   if (buffer.indexOf("debug on")>=0) { telnetDebug=true; telnetClient.print("done\r\n"); } else

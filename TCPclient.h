@@ -2,8 +2,8 @@ WiFiClient tcp;
 WiFiServer telnetServer(23);
 WiFiClient telnetClient;
 bool telnetDebug=false;
-String dataStore[255];
-uint8_t currentTags=0;
+uint64_t dataStore[500];
+uint16_t currentTags=0;
 bool tcpReady=false;
 int tcpRec=0;
 
@@ -16,7 +16,10 @@ void tcpConnect() {
 void sendTCPall() {
   tcp.print("OK\n"); tcpRec++;
   tcp.print(tcpSecret); tcp.print("\n"); tcpRec++;
-  for (uint8_t n=0;n<currentTags;n++) { tcp.print(dataStore[n] + String(";")); if (debug) { Serial.print("Send: "); Serial.println(dataStore[n]); } }
+  tcp.print(String(dataStore[0] & 0xffffffff,HEX) + "." + String((int)(dataStore[0] >> 32)) + String(";"));
+  if (debug) { Serial.print("Send: "); Serial.println(String(dataStore[0] & 0xffffffff,HEX) + "." + String((int)(dataStore[0] >> 32))); }
+  for (uint16_t n=1;n<currentTags;n++) { tcp.print(String(dataStore[n] & 0xffffffffffffff,HEX) + "." + String((int)(dataStore[n] >> 56)) + String(";"));
+    if (debug) { Serial.print("Send: "); Serial.println(String(dataStore[n] & 0xffffffffffffff,HEX) + "." + String((int)(dataStore[n] >> 56))); } }
   tcpReady=true; tcp.print("\n"); tcpRec++; if (debug) { Serial.println("TCP ready."); } }
 
 void tcpWorker() {

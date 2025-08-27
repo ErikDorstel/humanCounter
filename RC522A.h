@@ -28,9 +28,8 @@ void rc522WorkerA() {
 
   String tagTypeA=mfrc522A.PICC_GetTypeName(mfrc522A.PICC_GetType(mfrc522A.uid.sak));
 
-  String tagUIDA=""; for (uint8_t i=0;i<mfrc522A.uid.size;i++) {
-    if (mfrc522A.uid.uidByte[i]<16) { tagUIDA+="0"; }
-    tagUIDA+=String(mfrc522A.uid.uidByte[i],HEX); }
+  uint64_t tagUIDA=0; for (uint8_t i=0;i<mfrc522A.uid.size;i++) {
+    tagUIDA|=(uint64_t)mfrc522A.uid.uidByte[i]<<(8*i); }
 
   mfrc522A.PICC_HaltA(); mfrc522A.PCD_StopCrypto1(); SPI.end();
 
@@ -45,4 +44,4 @@ void rc522WorkerA() {
   if (debug) {
     Serial.println("Tag detected Reader A");
     Serial.print("  Type: "); Serial.println(tagTypeA);
-    Serial.print("  UID: "); Serial.println(tagUIDA); } }
+    Serial.print("  UID: "); Serial.println(String(tagUIDA,HEX)); } }
