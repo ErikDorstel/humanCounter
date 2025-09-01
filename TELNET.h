@@ -20,7 +20,7 @@ void doCommand(String command) {
 
 void telnetWorker() {
   static uint8_t isAuth=0;
-  if (telnetServer.hasClient() && (!telnetClient.connected())) { telnetClient=telnetServer.available(); isAuth=0; buffer=""; }
+  if (telnetServer.hasClient() && (!telnetClient.connected())) { telnetClient=telnetServer.available(); isAuth=0; buffer=""; telnetDebug=false; }
   if (!telnetClient.connected()) { telnetClient.stop(); }
   if (telnetClient.connected()) {
     if (isAuth==0) { telnetClient.print("Password: "); isAuth=1; telnetClient.flush(); }
