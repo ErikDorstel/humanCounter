@@ -1,5 +1,6 @@
 bool debug=true;
 
+const char* version="1.00";
 const char* ssidClient="SSID";
 const char* passClient="Secret";
 const char* ssidAP="humanCounter";
@@ -11,6 +12,7 @@ const String telnetSecret="XXXXXXXX";
 #include "WLAN.h"
 #include "TCPclient.h"
 #include "TCPserver.h"
+#include "OTA.h"
 #include "LED.h"
 #include "DATA.h"
 #include "BARRIER.h"
@@ -19,9 +21,10 @@ const String telnetSecret="XXXXXXXX";
 #include "RC522B.h"
 
 void setup() {
-  if (debug) { Serial.begin(115200); }
+  Serial.begin(115200);
   initWLAN();
   initServer();
+  initOTA();
   initLed();
   initData();
   initBarrier();
@@ -29,4 +32,4 @@ void setup() {
   initRC522A();
   initRC522B(); }
 
-void loop() { ledWorker(); wlanWorker(); tcpWorker(); serverWorker(); telnetWorker(); barrierWorker(); rc522WorkerA(); rc522WorkerB(); }
+void loop() { ledWorker(); wlanWorker(); tcpWorker(); serverWorker(); telnetWorker(); barrierWorker(); rc522WorkerA(); rc522WorkerB(); otaWorker(); }

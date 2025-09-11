@@ -8,6 +8,7 @@ ESP32 based human counter for the fire department
 * sends updates to a server part on tcp port 4242
 * implements a tcp server on port 4242
 * implements a telnet server on port 23
+* implements OTA (admin/admin)
 #### RC522 A
 * GPIO 19 MISO
 * GPIO 23 MOSI

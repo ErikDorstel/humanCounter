@@ -25,7 +25,8 @@ void initLed() {
   pinMode(beepOut,OUTPUT);
   pinMode(greenOut,OUTPUT); greenOn(1000);
   pinMode(yellowOut,OUTPUT); yellowOn(2000);
-  pinMode(redOut,OUTPUT); redOn(3000); }
+  pinMode(redOut,OUTPUT); redOn(3000);
+  if (debug) { Serial.print("Version: "); Serial.println(version); } }
 
 void ledWorker() {
   timerBeep.check();
