@@ -106,6 +106,7 @@ void initOTA() {
       else if (upload.status == UPLOAD_FILE_END) {
         if (Update.end(true)) { Serial.printf("Update Success: %u\nRebooting\n", upload.totalSize); }
         else { Update.printError(Serial); } } });
+
   webServer.begin(); }
 
 void otaWorker() { webServer.handleClient(); }

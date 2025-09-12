@@ -1,6 +1,3 @@
-#include <Preferences.h>
-Preferences data;
-
 void readData() {
   if (debug) { Serial.println("Read Data Store."); }
   data.begin("dataStore",true); currentTags=data.getInt("current",0);

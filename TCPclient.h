@@ -1,3 +1,5 @@
+#include <Preferences.h>
+Preferences data;
 WiFiClient tcp;
 WiFiServer telnetServer(23);
 WiFiClient telnetClient;
@@ -22,13 +24,50 @@ void sendTCPall() {
     if (debug) { Serial.print("Send: "); Serial.println(String(dataStore[n] & 0xffffffffffffff,HEX) + "." + String((int)(dataStore[n] >> 56))); } }
   tcpReady=true; tcp.print("\n"); tcpRec++; if (debug) { Serial.println("TCP ready."); } }
 
+int tagExist1(uint64_t UID) {
+  if ((dataStore[0] & 0xffffffff)==UID) { return 0; }
+  for (uint16_t n=1;n<currentTags;n++) { if ((dataStore[n] & 0xffffffffffffff)==UID) { return n; } } return -1; }
+
+void newTag1(int value,uint64_t UID) {
+  if (currentTags>=340) { if (debug) { Serial.println("Too mmany tags."); } return; }
+  data.begin("dataStore",false);
+  dataStore[currentTags]=UID | ((uint64_t)value << 56);
+  data.putULong64(String(currentTags,HEX).c_str(),dataStore[currentTags]);
+  String text=String(dataStore[currentTags],HEX) + String(".") + String(value);
+  if (telnetClient.connected() && telnetDebug) { telnetClient.print(text + String("\r\n")); }
+  if (debug) { Serial.print ("New Remote: "); Serial.println(text); }
+  currentTags++;
+  data.putInt("current",currentTags);
+  data.end(); }
+
+void setData1(int n,int value,uint64_t UID) {
+  data.begin("dataStore",false);
+  if (n==0) { dataStore[n]=UID | ((uint64_t)value << 32); }
+  else { dataStore[n]=UID | ((uint64_t)value << 56); }
+  data.putULong64(String(n,HEX).c_str(),dataStore[n]);
+  String text="";
+  if (n==0) { text=String(dataStore[n] & 0xffffffff,HEX) + String(".") + String(value); }
+  else { text=String(dataStore[n] & 0xffffffffffffff,HEX) + String(".") + String(value); }
+  if (telnetClient.connected() && telnetDebug) { telnetClient.print(text + String("\r\n")); }
+  if (debug) { Serial.print ("Set Remote: "); Serial.println(text); }
+  data.end(); }
+
 void tcpWorker() {
   static uint64_t tcpTimer=8000,recTimer=8000,keepAlive=20000;
+  static uint64_t UID=0; static int value=0;
   static String buffer="";
+  static bool ok=false;
   if (millis()>=tcpTimer) { tcpTimer=millis()+20000;
     if (!tcp.connected() && WiFi.status()==WL_CONNECTED) { tcpConnect(); } }
   if (tcp.connected() && (!tcpReady)) { sendTCPall(); }
   if (tcp.connected() && millis()>=keepAlive) { keepAlive=millis()+20000; tcp.print("OK\n"); tcpRec++; }
   if (millis()>=recTimer && tcpRec) { tcpRec=0; connectWLAN(); }
   if (!tcpRec) { recTimer=millis()+10000; }
-  while (tcp.available()) { buffer+=(char)tcp.read(); if (buffer.indexOf("OK")>=0) { buffer=""; tcpRec--; if (debug) { Serial.print("Reception: "); Serial.println(tcpRec); } } } }
+  while (tcp.available()) { char zeichen=(char)tcp.read();
+    if (zeichen=='O') { ok=true; }
+    else if (zeichen=='K' && ok) { ok=false; tcpRec--; if (debug) { Serial.print("Reception: "); Serial.println(tcpRec); } }
+    else if ((zeichen>='0' && zeichen<='9') || (zeichen>='a' && zeichen<='f') || (zeichen=='-')) { buffer+=zeichen; }
+    else if (zeichen=='.') { UID=strtoull(buffer.c_str(),NULL,16); buffer=""; }
+    else if (zeichen==';') { value=strtol(buffer.c_str(),NULL,10); buffer=""; int n=tagExist1(UID);
+      if (n==-1) { newTag1(value,UID); }
+      else { setData1(n,value,UID); } } } }

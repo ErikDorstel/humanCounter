@@ -1,6 +1,6 @@
 bool debug=true;
 
-const char* version="1.00";
+const char* version="1.01";
 const char* ssidClient="SSID";
 const char* passClient="Secret";
 const char* ssidAP="humanCounter";
