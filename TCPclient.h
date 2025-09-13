@@ -33,15 +33,15 @@ void tcpWorker() {
     if (!tcp.connected() && WiFi.status()==WL_CONNECTED) { tcpConnect(); } }
   if (tcp.connected() && (!tcpReady)) { sendTCPall(); }
   if (tcp.connected() && millis()>=keepAlive) { keepAlive=millis()+20000; tcp.print("OK\n"); tcpRec++; }
-  if (millis()>=recTimer && tcpRec) { tcpRec=0; connectWLAN(); }
-  if (!tcpRec) { recTimer=millis()+10000; }
-  while (tcp.available()) { char zeichen=(char)tcp.read();
-    if (zeichen=='O') { ok=true; }
-    else if (zeichen=='K' && ok) { ok=false; tcpRec--; if (debug) { Serial.print("Reception: "); Serial.println(tcpRec); } }
-    else if ((zeichen>='0' && zeichen<='9') || (zeichen=='-')) { buffer+=zeichen; }
-    else if ((zeichen>='a' && zeichen<='f') || (zeichen>='A' && zeichen<='F')) { buffer+=zeichen; }
-    else if (zeichen=='.') { UID=strtoull(buffer.c_str(),NULL,16); buffer=""; }
-    else if (zeichen==';') { value=strtol(buffer.c_str(),NULL,10); buffer="";
+  if (millis()>=recTimer && tcpRec) { tcpConnect(); }
+  if (!tcpRec) { recTimer=millis()+20000; }
+  while (tcp.available()) { char letter=(char)tcp.read();
+    if (letter=='O') { ok=true; }
+    else if (letter=='K' && ok) { ok=false; tcpRec--; if (debug) { Serial.print("Reception: "); Serial.println(tcpRec); } }
+    else if ((letter>='0' && letter<='9') || (letter=='-')) { buffer+=letter; }
+    else if ((letter>='a' && letter<='f') || (letter>='A' && letter<='F')) { buffer+=letter; }
+    else if (letter=='.') { UID=strtoull(buffer.c_str(),NULL,16); buffer=""; }
+    else if (letter==';') { value=strtol(buffer.c_str(),NULL,10); buffer="";
       int n=-1;
       if ((dataStore[0] & 0xffffffff)==UID) { n=0; }
       else { for (uint16_t x=1;x<currentTags;x++) { if ((dataStore[x] & 0xffffffffffffff)==UID) { n=x; } } }
@@ -50,7 +50,7 @@ void tcpWorker() {
         data.begin("dataStore",false);
         dataStore[currentTags]=UID | ((uint64_t)value << 56);
         data.putULong64(String(currentTags,HEX).c_str(),dataStore[currentTags]);
-        String text=String(dataStore[currentTags],HEX) + String(".") + String(value);
+        String text=String(dataStore[currentTags] & 0xffffffffffffff,HEX) + String(".") + String(value);
         if (telnetClient.connected() && telnetDebug) { telnetClient.print(text + String("\r\n")); }
         if (debug) { Serial.print ("New Remote: "); Serial.println(text); }
         currentTags++;
