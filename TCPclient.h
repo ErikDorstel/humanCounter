@@ -44,7 +44,7 @@ void tcpWorker() {
     else if (letter==';') { value=strtol(buffer.c_str(),NULL,10); buffer="";
       int n=-1;
       if ((dataStore[0] & 0xffffffff)==UID) { n=0; }
-      else { for (uint16_t x=1;x<currentTags;x++) { if ((dataStore[x] & 0xffffffffffffff)==UID) { n=x; } } }
+      else { for (uint16_t x=1;x<currentTags;x++) { if ((dataStore[x] & 0xffffffffffffff)==UID) { n=x; exit; } } }
       if (n==-1) {
         if (currentTags>=340) { if (debug) { Serial.println("Too mmany tags."); } return; }
         data.begin("dataStore",false);
@@ -67,3 +67,4 @@ void tcpWorker() {
         if (telnetClient.connected() && telnetDebug) { telnetClient.print(text + String("\r\n")); }
         if (debug) { Serial.print ("Set Remote: "); Serial.println(text); }
         data.end(); } } } }
+
